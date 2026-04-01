@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>จัดตารางติวสอบ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&family=Noto+Serif+Thai:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface2: #F0EDE6;
+    --border: rgba(0,0,0,0.10);
+    --border-strong: rgba(0,0,0,0.18);
+    --text: #1A1814;
+    --text-muted: #6B6760;
+    --text-hint: #A09D98;
+    --accent: #2D6A4F;
+    --accent-light: #E8F4EE;
+    --accent-mid: #52B788;
+    --danger: #C62828;
+    --danger-light: #FDECEA;
+    --warn: #E65100;
+    --warn-light: #FFF3E0;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.07);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  /* HEADER */
+  header {
+    background: var(--accent);
+    padding: 20px 24px 18px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-inner {
+    max-width: 720px; margin: 0 auto;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .header-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: rgba(255,255,255,0.18);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  header h1 {
+    font-family: 'Noto Serif Thai', serif;
+    font-size: 20px; font-weight: 600;
+    color: #fff; line-height: 1.2;
+  }
+  header p { font-size: 12px; color: rgba(255,255,255,0.72); margin-top: 2px; }
+  /* TABS */
+  .tabs {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 78px; z-index: 90;
+  }
+  .tabs-inner {
+    max-width: 720px; margin: 0 auto;
+    display: flex;
+  }
+  .tab-btn {
+    flex: 1; padding: 13px 8px; border: none;
+    background: transparent; cursor: pointer;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 14px; color: var(--text-muted);
+    border-bottom: 2.5px solid transparent;
+    transition: all .2s; font-weight: 400;
+  }
+  .tab-btn.active {
+    color: var(--accent); border-bottom-color: var(--accent);
+    font-weight: 500;
+  }
+  /* MAIN */
+  main {
+    max-width: 720px; margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+  /* SECTION CARD */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-size: 13px; font-weight: 500;
+    color: var(--text-muted); letter-spacing: .04em;
+    text-transform: uppercase; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card-title span { font-size: 15px; }
+  /* FORM ELEMENTS */
+  label { font-size: 14px; color: var(--text); font-weight: 500; display: block; margin-bottom: 6px; }
+  input[type="number"], input[type="text"], select, textarea {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 15px; color: var(--text);
+    background: var(--surface);
+    transition: border-color .15s, box-shadow .15s;
+    outline: none; appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent-mid);
+    box-shadow: 0 0 0 3px rgba(82,183,136,0.15);
+  }
+  .form-row { margin-bottom: 16px; }
+  /* SUBJECT TAGS */
+  .subject-grid {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
+  }
+  .subject-tag {
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: 500;
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface);
+    cursor: pointer; transition: all .15s;
+    color: var(--text-muted);
+    user-select: none;
+  }
+  .subject-tag.selected {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .subject-tag:hover { border-color: var(--accent-mid); }
+  /* CUSTOM SUBJECT */
+  .add-subject-row {
+    display: flex; gap: 8px;
+  }
+  .add-subject-row input { flex: 1; }
+  .btn-add {
+    padding: 10px 16px; border-radius: var(--radius-sm);
+    background: var(--accent-light); color: var(--accent);
+    border: 1px solid var(--accent);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    transition: background .15s;
+  }
+  .btn-add:hover { background: #d0ecdd; }
+  /* TIME SLOTS */
+  .day-row {
+    display: flex; align-items: center;
+    gap: 10px; padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .day-row:last-child { border-bottom: none; }
+  .day-label {
+    min-width: 40px; font-size: 13px; font-weight: 600;
+    color: var(--text-muted);
+  }
+  .time-chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+  .time-chip {
+    padding: 4px 10px; border-radius: 14px;
+    font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    cursor: pointer; transition: all .15s;
+    color: var(--text-muted);
+  }
+  .time-chip.selected {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent);
+  }
+  /* HOURS INPUT */
+  .hours-row { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .hours-input {
+    width: 52px !important; text-align: center;
+    padding: 6px 8px !important; font-size: 14px !important;
+  }
+  .hours-label { font-size: 12px; color: var(--text-hint); }
+  /* PRIMARY BUTTON */
+  .btn-primary {
+    width: 100%; padding: 14px;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 16px; font-weight: 600;
+    cursor: pointer; transition: background .15s;
+    box-shadow: 0 2px 8px rgba(45,106,79,0.25);
+  }
+  .btn-primary:hover { background: #235c43; }
+  .btn-primary:active { transform: scale(0.99); }
+  /* SCHEDULE OUTPUT */
+  .schedule-header {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 16px;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .schedule-title {
+    font-family: 'Noto Serif Thai', serif;
+    font-size: 18px; font-weight: 600; color: var(--text);
+  }
+  .btn-outline {
+    padding: 8px 16px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: var(--surface); color: var(--text-muted);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 13px; cursor: pointer; transition: all .15s;
+  }
+  .btn-outline:hover { background: var(--surface2); }
+  /* WEEK VIEW */
+  .week-grid {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .day-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .day-header {
+    padding: 10px 16px;
+    background: var(--surface2);
+    display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .day-name {
+    font-size: 14px; font-weight: 600; color: var(--text);
+  }
+  .day-date { font-size: 12px; color: var(--text-muted); }
+  .session-list { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .session-item {
+    display: flex; align-items: center;
+    gap: 10px; padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    position: relative;
+  }
+  .session-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%; flex-shrink: 0;
+  }
+  .session-subject { font-size: 14px; font-weight: 500; flex: 1; }
+  .session-time { font-size: 12px; color: var(--text-muted); }
+  .session-hours {
+    font-size: 12px; font-weight: 600;
+    padding: 3px 8px; border-radius: 10px;
+  }
+  .no-session {
+    padding: 12px; text-align: center;
+    font-size: 13px; color: var(--text-hint);
+  }
+  /* PROGRESS BAR */
+  .progress-section { margin-bottom: 16px; }
+  .progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .progress-label { font-size: 13px; flex: 1; }
+  .progress-bar-wrap {
+    flex: 2; height: 7px; background: var(--surface2);
+    border-radius: 4px; overflow: hidden;
+  }
+  .progress-bar-fill { height: 100%; border-radius: 4px; transition: width .5s ease; }
+  .progress-num { font-size: 12px; font-weight: 600; min-width: 42px; text-align: right; color: var(--text-muted); }
+  /* STAT PILLS */
+  .stat-row {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .stat-pill {
+    padding: 8px 14px; border-radius: var(--radius);
+    font-size: 13px; flex: 1; min-width: 100px;
+    background: var(--surface2); text-align: center;
+  }
+  .stat-pill strong {
+    display: block; font-size: 20px; font-weight: 600;
+    color: var(--accent);
+  }
+  /* ALERT */
+  .alert {
+    padding: 12px 16px; border-radius: var(--radius-sm);
+    font-size: 13px; margin-bottom: 14px;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .alert-warn { background: var(--warn-light); color: var(--warn); }
+  .alert-info { background: var(--accent-light); color: var(--accent); }
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 48px 24px;
+    color: var(--text-muted);
+  }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; line-height: 1.6; }
+  /* PRINT/EXPORT */
+  @media print {
+    header, .tabs, .btn-primary, .btn-outline { display: none !important; }
+    .panel { display: block !important; }
+    .card { box-shadow: none; border: 1px solid #ddd; }
+  }
+  @media (max-width: 480px) {
+    .day-row { flex-wrap: wrap; }
+    .hours-row { margin-top: 4px; }
+    .stat-pill { min-width: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-icon">📚</div>
+    <div>
+      <h1>จัดตารางติวสอบ</h1>
+      <p>วางแผนการเรียนเพื่อเตรียมสอบเข้ามหาวิทยาลัย</p>
+    </div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tabs-inner">
+    <button class="tab-btn active" onclick="switchTab('setup')">⚙️ ตั้งค่า</button>
+    <button class="tab-btn" onclick="switchTab('schedule')">📅 ตารางเรียน</button>
+    <button class="tab-btn" onclick="switchTab('progress')">📊 ความคืบหน้า</button>
+  </div>
+</div>
+
+<main>
+
+<!-- TAB 1: SETUP -->
+<div id="panel-setup" class="panel active">
+
+  <div class="card">
+    <div class="card-title"><span>📆</span> จำนวนวันที่เหลือ</div>
+    <div class="form-row">
+      <label for="days-left">จำนวนวันก่อนสอบ</label>
+      <input type="number" id="days-left" placeholder="เช่น 90" min="1" max="365" value="60">
+    </div>
+    <div class="form-row">
+      <label for="exam-name">ชื่อการสอบ (ไม่จำเป็น)</label>
+      <input type="text" id="exam-name" placeholder="เช่น TCAS, PAT, A-Level">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>📖</span> วิชาที่ต้องเรียน</div>
+    <div class="subject-grid" id="subject-tags">
+      <div class="subject-tag" onclick="toggleSubject(this)" data-subj="คณิตศาสตร์">คณิตศาสตร์</div>
+      <div class="subject-tag" onclick="toggleSubject(this)" data-subj="วิทยาศาสตร์">วิทยาศาสตร์</div>
+      <div class="subject-tag" onclick="toggleSubject(this)" data-subj="ฟิสิกส์">ฟิสิกส์</div>
+      <div class="subject-tag" onclick="toggleSubject(this)" data-subj="เคมี">เคมี</div>
+      <div class="subject-tag" onclick="toggleSubject(this)" data-subj="ชีววิทยา">ชีววิทยา</div>
+      <div class="subject-tag" onclick="toggleSubject(this)" data-subj="ภาษาไทย">ภาษาไทย</div>
+      <div class="subject-tag" onclick="toggleSubject(this)" data-subj="ภาษาอังกฤษ">ภาษาอังกฤษ</div>
+      <div class="subject-tag" onclick="toggleSubject(this)" data-subj="สังคมศึกษา">สังคมศึกษา</div>
+      <div class="subject-tag" onclick="toggleSubject(this)" data-subj="GPAX">GPAX</div>
+    </div>
+    <div class="add-subject-row">
+      <input type="text" id="custom-subject" placeholder="เพิ่มวิชาอื่น...">
+      <button class="btn-add" onclick="addCustomSubject()">+ เพิ่ม</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>⏰</span> เวลาว่างแต่ละวัน</div>
+    <div id="day-slots">
+      <!-- generated by JS -->
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>⚡</span> ระดับความสำคัญของวิชา</div>
+    <div id="priority-sliders">
+      <p style="font-size:13px;color:var(--text-hint);">เลือกวิชาก่อนเพื่อกำหนดระดับความสำคัญ</p>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="generateSchedule()">✨ สร้างตารางเรียน</button>
+</div>
+
+<!-- TAB 2: SCHEDULE -->
+<div id="panel-schedule" class="panel">
+  <div id="schedule-output">
+    <div class="empty-state">
+      <div class="icon">📋</div>
+      <p>ยังไม่มีตารางเรียน<br>กลับไปที่แท็บ <strong>ตั้งค่า</strong> แล้วกด <strong>สร้างตารางเรียน</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: PROGRESS -->
+<div id="panel-progress" class="panel">
+  <div id="progress-output">
+    <div class="empty-state">
+      <div class="icon">📊</div>
+      <p>สร้างตารางเรียนก่อนเพื่อดูความคืบหน้า</p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const DAYS_TH = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+const DAYS_FULL = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
+const TIME_SLOTS = ['เช้า\n6-9น.','สาย\n9-12น.','บ่าย\n13-16น.','เย็น\n16-19น.','ค่ำ\n19-22น.'];
+const TIME_HOURS = [3, 3, 3, 3, 3];
+const TIME_LABELS = ['เช้า (6-9น.)','สาย (9-12น.)','บ่าย (13-16น.)','เย็น (16-19น.)','ค่ำ (19-22น.)'];
+const COLORS = ['#2D6A4F','#1565C0','#6A1B9A','#BF360C','#00695C','#4E342E','#1A237E'];
+const COLOR_LIGHTS = ['#E8F4EE','#E3F2FD','#F3E5F5','#FBE9E7','#E0F2F1','#EFEBE9','#E8EAF6'];
+
+let selectedSubjects = new Set();
+let dayAvailability = {};
+let priorities = {};
+let generatedSchedule = null;
+let completedSessions = new Set();
+
+function initDaySlots() {
+  const container = document.getElementById('day-slots');
+  container.innerHTML = '';
+  for (let d = 0; d < 7; d++) {
+    const row = document.createElement('div');
+    row.className = 'day-row';
+    row.innerHTML = `<div class="day-label">${DAYS_TH[d]}</div>
+      <div class="time-chips" id="chips-${d}">
+        ${TIME_SLOTS.map((t,i) => `<div class="time-chip" onclick="toggleTime(${d},${i},this)" data-day="${d}" data-slot="${i}">${t.replace('\n','<br>')}</div>`).join('')}
+      </div>
+      <div class="hours-row">
+        <input type="number" class="hours-input" id="hrs-${d}" value="3" min="1" max="12" title="ชั่วโมงต่อวัน">
+        <span class="hours-label">ชม.</span>
+      </div>`;
+    container.appendChild(row);
+    dayAvailability[d] = { slots: new Set(), hours: 3 };
+  }
+}
+
+function toggleTime(day, slot, el) {
+  if (dayAvailability[day].slots.has(slot)) {
+    dayAvailability[day].slots.delete(slot);
+    el.classList.remove('selected');
+  } else {
+    dayAvailability[day].slots.add(slot);
+    el.classList.add('selected');
+    const total = [...dayAvailability[day].slots].reduce((a,s)=>a+TIME_HOURS[s],0);
+    document.getElementById('hrs-'+day).value = total;
+    dayAvailability[day].hours = total;
+  }
+}
+
+function toggleSubject(el) {
+  const s = el.dataset.subj;
+  if (selectedSubjects.has(s)) {
+    selectedSubjects.delete(s);
+    el.classList.remove('selected');
+  } else {
+    selectedSubjects.add(s);
+    el.classList.add('selected');
+  }
+  updatePrioritySliders();
+}
+
+function addCustomSubject() {
+  const inp = document.getElementById('custom-subject');
+  const val = inp.value.trim();
+  if (!val) return;
+  if ([...selectedSubjects].includes(val)) { inp.value=''; return; }
+  const tag = document.createElement('div');
+  tag.className = 'subject-tag selected';
+  tag.dataset.subj = val;
+  tag.textContent = val;
+  tag.onclick = function(){ toggleSubject(this); };
+  document.getElementById('subject-tags').insertBefore(tag, document.getElementById('subject-tags').lastElementChild);
+  selectedSubjects.add(val);
+  inp.value = '';
+  updatePrioritySliders();
+}
+
+function updatePrioritySliders() {
+  const container = document.getElementById('priority-sliders');
+  if (selectedSubjects.size === 0) {
+    container.innerHTML = '<p style="font-size:13px;color:var(--text-hint);">เลือกวิชาก่อนเพื่อกำหนดระดับความสำคัญ</p>';
+    return;
+  }
+  container.innerHTML = '';
+  [...selectedSubjects].forEach(s => {
+    if (!priorities[s]) priorities[s] = 3;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:12px;';
+    row.innerHTML = `
+      <span style="min-width:110px;font-size:14px;">${s}</span>
+      <input type="range" min="1" max="5" value="${priorities[s]}" style="flex:1;"
+        oninput="priorities['${s}']=+this.value;document.getElementById('prio-${s.replace(/[^a-z0-9]/gi,'_')}').textContent=['','น้อย','ปานกลาง','มาก','มากมาย','สูงสุด'][+this.value]">
+      <span id="prio-${s.replace(/[^a-z0-9]/gi,'_')}" style="min-width:54px;font-size:13px;font-weight:500;color:var(--accent);">${['','น้อย','ปานกลาง','มาก','มากมาย','สูงสุด'][priorities[s]]}</span>`;
+    container.appendChild(row);
+  });
+}
+
+function generateSchedule() {
+  const days = parseInt(document.getElementById('days-left').value) || 30;
+  const examName = document.getElementById('exam-name').value || 'สอบเข้ามหาวิทยาลัย';
+  const subjects = [...selectedSubjects];
+
+  if (subjects.length === 0) {
+    alert('กรุณาเลือกอย่างน้อย 1 วิชา');
+    return;
+  }
+
+  // Calculate hours per day from inputs
+  for (let d=0;d<7;d++) {
+    const v = parseInt(document.getElementById('hrs-'+d).value);
+    dayAvailability[d].hours = isNaN(v) ? 0 : v;
+  }
+
+  // Build schedule
+  const schedule = [];
+  const totalWeeks = Math.ceil(days / 7);
+  const subjectColors = {};
+  subjects.forEach((s, i) => {
+    subjectColors[s] = { bg: COLORS[i % COLORS.length], light: COLOR_LIGHTS[i % COLOR_LIGHTS.length] };
+  });
+
+  // Weight subjects by priority
+  const weights = subjects.map(s => priorities[s] || 3);
+  const totalWeight = weights.reduce((a,b)=>a+b,0);
+  const subjectRatios = subjects.map((s,i) => weights[i]/totalWeight);
+
+  let subjectIndex = 0;
+  const today = new Date();
+
+  for (let w = 0; w < Math.min(totalWeeks, 12); w++) {
+    for (let d = 0; d < 7; d++) {
+      const dayDate = new Date(today);
+      dayDate.setDate(today.getDate() + w*7 + d);
+      const hrs = dayAvailability[d].hours || 0;
+      if (hrs === 0) continue;
+
+      const daySchedule = { date: new Date(dayDate), day: d, sessions: [] };
+      let remaining = hrs;
+      let si = subjectIndex % subjects.length;
+
+      while (remaining > 0 && subjects.length > 0) {
+        const hrsForSubject = Math.min(remaining, Math.max(1, Math.round(hrs * subjectRatios[si])));
+        daySchedule.sessions.push({
+          subject: subjects[si],
+          hours: hrsForSubject,
+          color: subjectColors[subjects[si]],
+        });
+        remaining -= hrsForSubject;
+        si = (si + 1) % subjects.length;
+        if (daySchedule.sessions.length >= Math.min(subjects.length, 3)) break;
+      }
+      subjectIndex = si;
+      schedule.push(daySchedule);
+    }
+  }
+
+  generatedSchedule = { schedule, subjects, subjectColors, days, examName };
+  completedSessions = new Set();
+
+  renderSchedule();
+  renderProgress();
+  switchTab('schedule');
+}
+
+function renderSchedule() {
+  if (!generatedSchedule) return;
+  const { schedule, examName, days } = generatedSchedule;
+  const out = document.getElementById('schedule-output');
+
+  let html = `<div class="schedule-header">
+    <div>
+      <div class="schedule-title">${examName}</div>
+      <div style="font-size:13px;color:var(--text-muted);">เหลือ ${days} วัน · ${schedule.length} วันเรียน</div>
+    </div>
+    <button class="btn-outline" onclick="window.print()">🖨️ พิมพ์</button>
+  </div>`;
+
+  // Group by week
+  const weeks = {};
+  schedule.forEach(d => {
+    const w = getWeekNum(d.date);
+    if (!weeks[w]) weeks[w] = [];
+    weeks[w].push(d);
+  });
+
+  Object.values(weeks).forEach((wDays, wi) => {
+    html += `<div style="font-size:12px;font-weight:600;color:var(--text-hint);letter-spacing:.06em;margin:16px 0 8px;text-transform:uppercase;">สัปดาห์ที่ ${wi+1}</div>`;
+    html += '<div class="week-grid">';
+    wDays.forEach(d => {
+      const dateStr = d.date.toLocaleDateString('th-TH', {day:'numeric',month:'short'});
+      const sessionId = `${wi}-${d.day}-${dateStr}`;
+      html += `<div class="day-card">
+        <div class="day-header">
+          <span class="day-name">${DAYS_FULL[d.day]}</span>
+          <span class="day-date">${dateStr}</span>
+        </div>
+        <div class="session-list">`;
+      if (d.sessions.length === 0) {
+        html += '<div class="no-session">— หยุดพัก —</div>';
+      } else {
+        d.sessions.forEach((s, si) => {
+          const sid = `${sessionId}-${si}`;
+          const done = completedSessions.has(sid);
+          html += `<div class="session-item" style="background:${done ? '#f0f0f0' : s.color.light};${done?'opacity:.5':''}" id="sess-${sid}">
+            <div class="session-dot" style="background:${s.color.bg}"></div>
+            <div class="session-subject" style="color:${s.color.bg};${done?'text-decoration:line-through':''}">${s.subject}</div>
+            <div class="session-time" style="font-size:12px;color:var(--text-muted)">${s.hours} ชม.</div>
+            <div onclick="toggleDone('${sid}')" style="cursor:pointer;font-size:18px;padding:2px 4px;">${done ? '✅' : '⭕'}</div>
+          </div>`;
+        });
+      }
+      html += '</div></div>';
+    });
+    html += '</div>';
+  });
+
+  out.innerHTML = html;
+}
+
+function toggleDone(sid) {
+  if (completedSessions.has(sid)) {
+    completedSessions.delete(sid);
+  } else {
+    completedSessions.add(sid);
+  }
+  renderSchedule();
+  renderProgress();
+}
+
+function renderProgress() {
+  if (!generatedSchedule) return;
+  const { schedule, subjects, subjectColors, days } = generatedSchedule;
+  const out = document.getElementById('progress-output');
+
+  // Tally hours per subject
+  const totalHoursMap = {};
+  const doneHoursMap = {};
+  subjects.forEach(s => { totalHoursMap[s]=0; doneHoursMap[s]=0; });
+
+  schedule.forEach((d, wi) => {
+    d.sessions.forEach((s, si) => {
+      const dateStr = d.date.toLocaleDateString('th-TH', {day:'numeric',month:'short'});
+      const sessionId = `${Math.floor(wi/7)}-${d.day}-${dateStr}-${si}`;
+      totalHoursMap[s.subject] = (totalHoursMap[s.subject]||0) + s.hours;
+      if (completedSessions.has(sessionId)) {
+        doneHoursMap[s.subject] = (doneHoursMap[s.subject]||0) + s.hours;
+      }
+    });
+  });
+
+  const totalAll = Object.values(totalHoursMap).reduce((a,b)=>a+b,0);
+  const doneAll = Object.values(doneHoursMap).reduce((a,b)=>a+b,0);
+  const pct = totalAll ? Math.round(doneAll/totalAll*100) : 0;
+
+  let html = `
+    <div class="stat-row">
+      <div class="stat-pill"><strong>${days}</strong>วันที่เหลือ</div>
+      <div class="stat-pill"><strong>${totalAll}</strong>ชม.รวม</div>
+      <div class="stat-pill"><strong>${doneAll}</strong>ชม.เรียนแล้ว</div>
+      <div class="stat-pill"><strong>${pct}%</strong>เสร็จสิ้น</div>
+    </div>`;
+
+  if (pct > 0) {
+    html += `<div class="alert alert-info">🎉 คุณเรียนไปแล้ว ${pct}% ของตารางทั้งหมด ทำได้ดีมาก!</div>`;
+  } else {
+    html += `<div class="alert alert-warn">⏰ ยังไม่ได้เริ่มเรียน ไปดูตารางและเริ่มเลย!</div>`;
+  }
+
+  html += '<div class="card"><div class="card-title"><span>📈</span> ชั่วโมงแต่ละวิชา</div><div class="progress-section">';
+  subjects.forEach(s => {
+    const t = totalHoursMap[s] || 0;
+    const done = doneHoursMap[s] || 0;
+    const p = t ? Math.round(done/t*100) : 0;
+    const col = subjectColors[s];
+    html += `<div class="progress-row">
+      <div class="progress-label">${s}</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${p}%;background:${col.bg}"></div></div>
+      <div class="progress-num">${done}/${t}ชม.</div>
+    </div>`;
+  });
+  html += '</div></div>';
+
+  out.innerHTML = html;
+}
+
+function getWeekNum(date) {
+  const d = new Date(date);
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate() + 4 - (d.getDay()||7));
+  const yearStart = new Date(d.getFullYear(),0,1);
+  return Math.ceil((((d-yearStart)/86400000)+1)/7);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.getAttribute('onclick').includes(name)) b.classList.add('active');
+  });
+}
+
+// Init
+initDaySlots();
+// Pre-select Mon-Fri as common days
+[1,2,3,4,5].forEach(d => {
+  const chips = document.querySelectorAll(`#chips-${d} .time-chip`);
+  // Select morning + evening by default
+  [1,3].forEach(i => {
+    if (chips[i]) {
+      chips[i].classList.add('selected');
+      dayAvailability[d].slots.add(i);
+    }
+  });
+  dayAvailability[d].hours = 6;
+  document.getElementById('hrs-'+d).value = 6;
+});
+</script>
+</body>
+</html>
